@@ -13,9 +13,9 @@ namespace ariel {
         void loadGraph(const std::vector<std::vector<int>>& matrix);
         void printGraph() const;
         bool isDirected() const;
-        int getNumberOfNodes() const;
+        std::size_t getNumberOfNodes() const;
         std::vector<std::pair<int, std::pair<int, int>>> getEdges() const;
-        std::vector<int> getNeighbors(int node) const ;
+        std::vector<std::size_t> getNeighbors(std::size_t node) const ;
         int getEdgeWeight(int u, int v) const ;
     };
 }

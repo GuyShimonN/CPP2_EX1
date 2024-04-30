@@ -49,7 +49,7 @@ bool Graph::isDirected() const {
     return false;
 }
 
-int Graph::getNumberOfNodes() const {
+size_t Graph::getNumberOfNodes() const {
     return adjacencyMatrix.size();
 }
 
@@ -65,14 +65,14 @@ std::vector<std::pair<int, std::pair<int, int>>> Graph::getEdges() const {
     return edges;
 }
 
-std::vector<int> Graph::getNeighbors(int node) const {
-    std::vector<int> neighbors;
-    if (node < 0 || static_cast<size_t>(node) >= adjacencyMatrix.size()) {
+std::vector<size_t> Graph::getNeighbors(size_t node) const {
+    std::vector<size_t> neighbors;
+    if (node >= adjacencyMatrix.size()) {
         throw std::out_of_range("Node index out of range");
     }
-    for (size_t i = 0; i < adjacencyMatrix[static_cast<size_t>(node)].size(); ++i) {
-        if (adjacencyMatrix[static_cast<size_t>(node)][i] != 0) {
-            neighbors.push_back(static_cast<int>(i));
+    for (size_t i = 0; i < adjacencyMatrix[node].size(); ++i) {
+        if (adjacencyMatrix[node][i] != 0) {
+            neighbors.push_back(i);
         }
     }
     return neighbors;
