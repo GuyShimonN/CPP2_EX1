@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Graph.hpp"
 #include <queue>
 #include <limits>
@@ -7,7 +8,6 @@
 #include <algorithm>
 using namespace ariel;
 using namespace std;
-
 void Algorithms::DFS(const Graph &g, size_t node, std::vector<bool> &visited) {
     visited[node] = true;
     std::vector<size_t> neighbors = g.getNeighbors(node);
@@ -25,6 +25,7 @@ bool Algorithms::isConnected(const Graph &g) {
             return false;
         }
     }
+//    std::cout << true << std::endl;
     return true;
 }
 
@@ -77,11 +78,16 @@ bool Algorithms::isContainsCycle(const Graph &g) {
     std::vector<bool> recStack(numNodes, false);
     std::vector<int> parent(numNodes, -1);
 
-    for(size_t i = 0; i < numNodes; i++)
+    for(size_t i = 0; i < numNodes; i++) {
         if (!visited[i] && isCyclicUtil(i, visited, recStack, parent, g)) {
             std::vector<int> cycle;
-            for (size_t v = i; v != static_cast<size_t>(-1); v = static_cast<size_t>(parent[v])) {
+            std::vector<bool> visitedCycle(numNodes, false);
+            for (size_t v = i; ; v = static_cast<size_t>(parent[v])) {
                 cycle.push_back(v);
+                if (visitedCycle[v]) {
+                    break;
+                }
+                visitedCycle[v] = true;
             }
             cycle.push_back(i);
             std::reverse(cycle.begin(), cycle.end());
@@ -96,7 +102,7 @@ bool Algorithms::isContainsCycle(const Graph &g) {
             std::cout << cycleStr << std::endl;
             return true;
         }
-
+    }
     return false;
 }
 
@@ -139,7 +145,8 @@ std::string Algorithms::isBipartite(const Graph &g) {
                         colorArr[v] = 1 - colorArr[u];
                         q.push(v);
                     } else if (colorArr[v] == colorArr[u]) {
-                        return "The graph is not bipartite.";
+//                        std::cout << "0" << std::endl;
+                        return "0";
                     }
                 }
             }
@@ -169,7 +176,7 @@ std::string Algorithms::isBipartite(const Graph &g) {
         }
     }
     result += "}";
-
+//    std::cout << result << std::endl;
     return result;
 }
 
