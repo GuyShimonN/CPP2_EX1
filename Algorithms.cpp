@@ -6,6 +6,7 @@
 #include "Algorithms.hpp"
 #include <climits>
 #include <algorithm>
+#include <unordered_set>
 using namespace ariel;
 using namespace std;
 void Algorithms::DFS(const Graph &g, size_t node, std::vector<bool> &visited) {
@@ -72,58 +73,59 @@ std::string Algorithms::shortestPath(const Graph& g, size_t start, size_t end) {
         return pathStr;
     }
 }
-bool Algorithms::isContainsCycle(const Graph &g) {
+bool Algorithms::isCyclicUtil(size_t v, std::vector<bool>& visited, std::vector<bool>& recStack, std::vector<size_t >& parent, const Graph& g, std::vector<size_t >& cycle) {
+    visited[v] = true;
+    recStack[v] = true;
+    bool isDirected = g.isDirected();
+
     size_t numNodes = g.getNumberOfNodes();
-    std::vector<bool> visited(numNodes, false);
-    std::vector<bool> recStack(numNodes, false);
-    std::vector<int> parent(numNodes, -1);
-
-    for(size_t i = 0; i < numNodes; i++) {
-        if (!visited[i] && isCyclicUtil(i, visited, recStack, parent, g)) {
-            std::vector<int> cycle;
-            std::vector<bool> visitedCycle(numNodes, false);
-            for (size_t v = i; ; v = static_cast<size_t>(parent[v])) {
-                cycle.push_back(v);
-                if (visitedCycle[v]) {
-                    break;
+    for (size_t i = 0; i < numNodes; i++) {
+        if (g.isEdge(v, i)) {  // Check if there is an edge from v to i
+            if (!visited[i]) {
+                parent[i] = v;
+                if (isCyclicUtil(i, visited, recStack, parent, g, cycle)) {
+                    return true;
                 }
-                visitedCycle[v] = true;
-            }
-            cycle.push_back(i);
-            std::reverse(cycle.begin(), cycle.end());
-
-            std::string cycleStr = "The cycle is: ";
-            for (size_t i = 0; i < cycle.size(); ++i) {
-                cycleStr += std::to_string(cycle[i]);
-                if (i != cycle.size() - 1) {
-                    cycleStr += "->";
+            } else if ((isDirected && recStack[i]) || (!isDirected && recStack[i] && parent[v] != i)) {
+                // If a cycle is detected, trace back to print the cycle
+                cycle.push_back(i);
+                for (size_t p = v; p != i; p = parent[p]) {
+                    cycle.push_back(p);
                 }
+                cycle.push_back(i);  // Complete the cycle by adding the start node again
+                std::reverse(cycle.begin(), cycle.end());
+
+                // Print the cycle path
+                std::cout << "Cycle detected: ";
+                for (size_t j = 0; j < cycle.size(); j++) {
+                    std::cout << cycle[j];
+                    if (j < cycle.size() - 1) std::cout << " -> ";
+                }
+                std::cout << std::endl;
+
+                return true;
             }
-            std::cout << cycleStr << std::endl;
-            return true;
         }
     }
+
+    recStack[v] = false;
     return false;
 }
 
-bool Algorithms::isCyclicUtil(size_t v, std::vector<bool>& visited, std::vector<bool>& recStack, std::vector<int>& parent, const Graph& g) {
-    visited[v] = true;
-    recStack[v] = true;
+bool Algorithms::isContainsCycle(const Graph& g) {
+    size_t numNodes = g.getNumberOfNodes();
+    std::vector<bool> visited(numNodes, false);
+    std::vector<bool> recStack(numNodes, false);
+    std::vector<size_t > parent(numNodes, SIZE_MAX);
+    std::vector<size_t> cycle;  // To store the path of the cycle
 
-    std::vector<size_t> neighbors = g.getNeighbors(v);
-    for(size_t i = 0; i < neighbors.size(); i++) {
-        if (!visited[neighbors[i]]) {
-            parent[neighbors[i]] = v;
-            if (isCyclicUtil(neighbors[i], visited, recStack, parent, g)) {
+    for (size_t i = 0; i < numNodes; i++) {
+        if (!visited[i]) {
+            if (isCyclicUtil(i, visited, recStack, parent, g, cycle)) {
                 return true;
             }
-        } else if (recStack[neighbors[i]]) {
-            parent[neighbors[i]] = v;
-            return true;
         }
     }
-
-    recStack[v] = false;  // remove the vertex from recursion stack
     return false;
 }
 std::string Algorithms::isBipartite(const Graph &g) {

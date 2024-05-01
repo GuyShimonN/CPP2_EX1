@@ -15,7 +15,7 @@ namespace ariel {
         static std::string negativeCycle(const Graph& g);
     private:
         static void DFS(const Graph& g, size_t node, std::vector<bool>& visited);
-       static bool isCyclicUtil(size_t v, std::vector<bool>& visited, std::vector<bool>& recStack, std::vector<int>& parent, const Graph& g) ;    };
+        static bool isCyclicUtil(size_t v, std::vector<bool>& visited, std::vector<bool>& recStack, std::vector<size_t >& parent, const Graph& g, std::vector<size_t>& cycle);    };
 }
 
 #endif // ALGORITHMS_HPP

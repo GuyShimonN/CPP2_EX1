@@ -20,7 +20,8 @@ void Graph::printGraph() const {
     int numEdges = 0;
     for (const auto &row: adjacencyMatrix) {
         for (const auto &element: row) {
-            numEdges += element;
+            if (element != 0)
+                numEdges++;
         }
     }
     // If the graph is undirected, each edge is counted twice
@@ -84,3 +85,5 @@ int Graph::getEdgeWeight(int u, int v) const {
     }
     return adjacencyMatrix[static_cast<size_t>(u)][static_cast<size_t>(v)];
 }
+
+
