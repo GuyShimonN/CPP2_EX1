@@ -4,6 +4,9 @@ using namespace ariel;
 using namespace std;
 
 void Graph::loadGraph(const std::vector<std::vector<int>>& matrix) {
+    if (matrix.empty()) {
+        throw std::invalid_argument("The graph cannot be empty");
+    }
     // Check if the matrix is square
     int size = matrix.size();
     for (const auto& row : matrix) {
