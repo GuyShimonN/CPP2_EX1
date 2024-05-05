@@ -20,6 +20,9 @@ namespace ariel {
         bool isEdge(size_t from, size_t to) const {
             return adjacencyMatrix[from][to] != 0;
         }
+        std::vector<std::vector<int>> getMatrix() const {
+            return adjacencyMatrix;
+        }
     };
 }
 

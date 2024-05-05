@@ -30,52 +30,65 @@ bool Algorithms::isConnected(const Graph &grp) {
     DFS(grp, 0, visited);
     return std::all_of(visited.begin(), visited.end(), [](bool ver) { return ver; });
 }
-
-std::string Algorithms::shortestPath(const Graph &grp, size_t start, size_t end) {
-    size_t num = grp.getNumberOfNodes();
-    std::vector<int> dist(num, INT_MAX);
-    std::vector<size_t> pred(num, SIZE_MAX);
+string ariel::Algorithms::shortestPath(const Graph& grp, size_t start, size_t end) {
+    size_t numNodes = grp.getNumberOfNodes();
+    vector<int> dist(numNodes, numeric_limits<int>::max());
+    vector<size_t> pred(numNodes, numeric_limits<size_t>::max());
     dist[start] = 0;
 
-    for (size_t i = 0; i < num - 1; i++) {
-        for (const auto &edge: grp.getEdges()) {
-            size_t edge1 = static_cast<size_t>(edge.first);
-            size_t edge2 = static_cast<size_t>(edge.second.first);
-            int edge3 = edge.second.second;
-            if (dist[edge1] != INT_MAX && dist[edge1] + edge3 < dist[edge2]) {
-                dist[edge2] = dist[edge1] + edge3;
-                pred[edge2] = edge1;
+    // Relax all edges |V| - 1 times
+    bool updated = false;
+    for (size_t i = 0; i < numNodes - 1; i++) {
+        updated = false;
+        for (auto edge : grp.getEdges()) {
+            size_t u = static_cast<size_t>(edge.first);
+            size_t v = static_cast<size_t>(edge.second.first);
+            int weight = edge.second.second;
+            if (dist[u] != numeric_limits<int>::max() && dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+                pred[v] = u;
+                updated = true;
+            }
+        }
+        if (!updated) break; // If no update is made, stop early
+    }
+
+    // Check for negative-weight cycles in the last iteration
+    if (updated) {
+        for (auto edge : grp.getEdges()) {
+            size_t u = static_cast<size_t>(edge.first);
+            size_t v = static_cast<size_t>(edge.second.first);
+            int weight = edge.second.second;
+            if (dist[u] != numeric_limits<int>::max() && dist[u] + weight < dist[v]&&pred[u]!=v) {
+                throw runtime_error("Graph contains a negative-weight cycle");
             }
         }
     }
 
-    for (const auto &edge: grp.getEdges()) {
-        size_t edge1 = static_cast<size_t>(edge.first);
-        size_t edge2 = static_cast<size_t>(edge.second.first);
-        int edge3 = edge.second.second;
-        if (dist[edge1] != INT_MAX && dist[edge1] + edge3 < dist[edge2]) {
-            throw std::runtime_error("Graph contains a negative-weight cycle");
-        }
+    // Construct the path from start to end
+    if (dist[end] == numeric_limits<int>::max()) {
+        return "-1";  // No path found
     }
 
-    if (dist[end] == INT_MAX) {
-        return "-1";
+    vector<size_t> path;
+    for (size_t at = end; at != start; at = pred[at]) {
+        if (at == numeric_limits<size_t>::max()) {
+            return "-1";  // No valid path exists
+        }
+        path.push_back(at);
     }
-        std::vector<size_t > path;
-        for (size_t edge = end; edge != static_cast<size_t>(-1); edge = static_cast<size_t>(pred[edge])) {
-            path.push_back(edge);
-        }
-        std::reverse(path.begin(), path.end());
+    path.push_back(start); // Add the start node at the end
 
-        std::string pathStr = std::to_string(path[0]);
-        for (size_t i = 1; i < path.size(); ++i) {
-            pathStr += "->" + std::to_string(path[i]);
-        }
+    reverse(path.begin(), path.end());
 
-        return pathStr;
+    // Create a string representation of the path
+    string pathStr = to_string(path[0]);
+    for (size_t i = 1; i < path.size(); ++i) {
+        pathStr += "->" + to_string(path[i]);
+    }
 
+    return pathStr;
 }
-
 bool
 Algorithms::isCyclicUtil(size_t v, std::vector<bool> &visited, std::vector<bool> &recStack, std::vector<size_t> &parent,
                          const Graph &grp, std::vector<size_t> &cycle) {

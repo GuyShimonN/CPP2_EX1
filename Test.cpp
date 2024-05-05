@@ -56,6 +56,31 @@ TEST_CASE("Test shortestPath with disconnected graph")
     g.loadGraph(graph);
     CHECK(ariel::Algorithms::shortestPath(g, 0, 3) == "-1");
 }
+TEST_CASE("Test shortestPath with negative edge but no negative cycle")
+{
+    ariel::Graph g;
+    vector<vector<int>> graph = {
+            {0, -1, 0, 0, 0},
+            {-1, 0, 3, 0, 0},
+            {0, 3, 0, 4, 0},
+            {0, 0, 4, 0, 5},
+            {0, 0, 0, 5, 0}};
+    g.loadGraph(graph);
+    CHECK(ariel::Algorithms::shortestPath(g, 0, 4) == "0->1->2->3->4");
+}
+
+TEST_CASE("Test shortestPath with negative cycle")
+{
+    ariel::Graph g;
+    vector<vector<int>> graph = {
+            {0, 1, 0, 0, 0},
+            {1, 0, -3, 0, 0},
+            {0, -3, 0, 4, 0},
+            {0, 0, 4, 0, 5},
+            {0, 0, 0, 5, 0}};
+    g.loadGraph(graph);
+    CHECK_THROWS(ariel::Algorithms::shortestPath(g, 0, 4));}
+
 TEST_CASE("Test isContainsCycle")
 {
     ariel::Graph g;
