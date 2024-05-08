@@ -10,11 +10,11 @@ namespace ariel {
     public:
         static bool isConnected(const Graph& grp);
         static std::string shortestPath(const Graph& g, size_t start, size_t end);
-        static bool isContainsCycle(const Graph& g);
+        static std::string isContainsCycle(const Graph& grp) ;
         static std::string isBipartite(const Graph& g);
         static std::string negativeCycle(const Graph& g);
         static void DFS(const Graph& grp, size_t node, std::vector<bool>& visited);
-
+        static std::vector<size_t> handleCycle(size_t v, size_t i, std::vector<size_t>& parent);
         static bool isCyclicUtil(size_t v, std::vector<bool>& visited, std::vector<bool>& recStack, std::vector<size_t >& parent, const Graph& g, std::vector<size_t>& cycle);
 
     private:

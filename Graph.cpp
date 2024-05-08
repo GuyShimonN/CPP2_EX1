@@ -14,7 +14,7 @@ void Graph::loadGraph(const std::vector<std::vector<int>>& matrix) {
             throw std::invalid_argument("Invalid graph: The graph is not a square matrix.");
         }
     }
-
+    this->directed=this->isDirected();
     // If the matrix is square, load it into the adjacencyMatrix
     this->adjacencyMatrix = matrix;
 }
@@ -28,7 +28,7 @@ void Graph::printGraph() const {
         }
     }
     // If the graph is undirected, each edge is counted twice
-    if (!isDirected()) {
+    if (getDirected()) {
         numEdges /= 2;
     }
 
@@ -57,8 +57,19 @@ size_t Graph::getNumberOfNodes() const {
     return adjacencyMatrix.size();
 }
 
-std::vector<std::pair<int, std::pair<int, int>>> Graph::getEdges() const {
-    std::vector<std::pair<int, std::pair<int, int>>> edges;
+std::vector<std::pair<size_t , std::pair<size_t, int>>> Graph::getEdges() const {
+    std::vector<std::pair<size_t , std::pair<size_t , int>>> edges;
+    for (size_t i = 0; i < adjacencyMatrix.size(); ++i) {
+        for (size_t j = i; j < adjacencyMatrix[i].size(); ++j) {
+            if (adjacencyMatrix[i][j] != 0) {
+                edges.push_back({i, {j, adjacencyMatrix[i][j]}});
+            }
+        }
+    }
+    return edges;
+}
+std::vector<std::pair<size_t, std::pair<size_t , int>>> Graph::getEdgesUndirected() const {
+    std::vector<std::pair<size_t, std::pair<size_t, int>>> edges;
     for (size_t i = 0; i < adjacencyMatrix.size(); ++i) {
         for (size_t j = 0; j < adjacencyMatrix[i].size(); ++j) {
             if (adjacencyMatrix[i][j] != 0) {

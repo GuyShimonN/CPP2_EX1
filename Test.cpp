@@ -73,14 +73,14 @@ TEST_CASE("Test shortestPath with negative cycle")
 {
     ariel::Graph g;
     vector<vector<int>> graph = {
-            {0, 1, 0, 0, 0},
+            {0, 1, -1, 0, 0},
             {1, 0, -3, 0, 0},
-            {0, -3, 0, 4, 0},
+            {-1, -3, 0, 4, 0},
             {0, 0, 4, 0, 5},
             {0, 0, 0, 5, 0}};
     g.loadGraph(graph);
-    CHECK_THROWS(ariel::Algorithms::shortestPath(g, 0, 4));}
-
+    CHECK_THROWS(ariel::Algorithms::shortestPath(g, 0, 4));
+}
 TEST_CASE("Test isContainsCycle")
 {
     ariel::Graph g;
@@ -89,7 +89,7 @@ TEST_CASE("Test isContainsCycle")
         {1, 0, 1},
         {0, 1, 0}};
     g.loadGraph(graph);
-    CHECK(ariel::Algorithms::isContainsCycle(g) == false);
+    CHECK(ariel::Algorithms::isContainsCycle(g) == "-1");
 
     vector<vector<int>> graph2 = {
         {0, 1, 1, 0, 0},
@@ -98,7 +98,48 @@ TEST_CASE("Test isContainsCycle")
         {0, 0, 1, 0, 0},
         {0, 0, 0, 0, 0}};
     g.loadGraph(graph2);
-    CHECK(ariel::Algorithms::isContainsCycle(g) == true);
+    CHECK(ariel::Algorithms::isContainsCycle(g) == "0->1->2->0");
+}
+TEST_CASE("Test isContainsCycle with single node graph")
+{
+    ariel::Graph g;
+    vector<vector<int>> graph = {{0}};
+    g.loadGraph(graph);
+    CHECK(ariel::Algorithms::isContainsCycle(g) == "-1");
+}
+
+TEST_CASE("Test isContainsCycle with self-loop")
+{
+    ariel::Graph g;
+    vector<vector<int>> graph = {{1}};
+    g.loadGraph(graph);
+    CHECK(ariel::Algorithms::isContainsCycle(g) == "0->0");
+}
+
+TEST_CASE("Test isContainsCycle with multiple disconnected components")
+{
+    ariel::Graph g;
+    vector<vector<int>> graph = {
+            {0, 1, 0, 0, 0},
+            {1, 0, 0, 0, 0},
+            {0, 0, 0, 1, 1},
+            {0, 0, 1, 0, 0},
+            {0, 0, 1, 0, 0}};
+    g.loadGraph(graph);
+    CHECK(ariel::Algorithms::isContainsCycle(g) == "-1");
+}
+
+TEST_CASE("Test isContainsCycle with multiple cycles")
+{
+    ariel::Graph g;
+    vector<vector<int>> graph = {
+            {0, 1, 1, 0, 0},
+            {1, 0, 1, 0, 0},
+            {1, 1, 0, 1, 1},
+            {0, 0, 1, 0, 1},
+            {0, 0, 1, 1, 0}};
+    g.loadGraph(graph);
+    CHECK(ariel::Algorithms::isContainsCycle(g) != "-1");  // Expect any valid cycle
 }
 TEST_CASE("Test isBipartite")
 {

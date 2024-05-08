@@ -10,7 +10,7 @@
 
 using namespace ariel;
 using namespace std;
-
+//(grp.getDirected() ? grp.getEdgesUndirected() : grp.getEdges() )
 void Algorithms::DFS(const Graph &grp, size_t node, std::vector<bool> &visited) {
     // Check if the graph is empty
     if (grp.getNumberOfNodes() == 0) {
@@ -37,31 +37,25 @@ string ariel::Algorithms::shortestPath(const Graph& grp, size_t start, size_t en
     dist[start] = 0;
 
     // Relax all edges |V| - 1 times
-    bool updated = false;
     for (size_t i = 0; i < numNodes - 1; i++) {
-        updated = false;
-        for (auto edge : grp.getEdges()) {
-            size_t u = static_cast<size_t>(edge.first);
-            size_t v = static_cast<size_t>(edge.second.first);
+        for (auto edge : (grp.isDirected() ? grp.getEdges() : grp.getEdgesUndirected())) {
+            size_t first = static_cast<size_t>(edge.first);
+            size_t secend = static_cast<size_t>(edge.second.first);
             int weight = edge.second.second;
-            if (dist[u] != numeric_limits<int>::max() && dist[u] + weight < dist[v]) {
-                dist[v] = dist[u] + weight;
-                pred[v] = u;
-                updated = true;
+            if (dist[first] != numeric_limits<int>::max() && dist[first] + weight < dist[secend]&&pred[secend]!=first) {
+                dist[secend] = dist[first] + weight;
+                pred[secend] = first;
             }
         }
-        if (!updated) break; // If no update is made, stop early
     }
 
-    // Check for negative-weight cycles in the last iteration
-    if (updated) {
-        for (auto edge : grp.getEdges()) {
-            size_t u = static_cast<size_t>(edge.first);
-            size_t v = static_cast<size_t>(edge.second.first);
-            int weight = edge.second.second;
-            if (dist[u] != numeric_limits<int>::max() && dist[u] + weight < dist[v]&&pred[u]!=v) {
-                throw runtime_error("Graph contains a negative-weight cycle");
-            }
+    // Additional iteration to check for negative-weight cycles
+    for (auto edge : (grp.isDirected() ? grp.getEdges() : grp.getEdgesUndirected())) {
+        size_t first = static_cast<size_t>(edge.first);
+        size_t secend = static_cast<size_t>(edge.second.first);
+        int weight = edge.second.second;
+        if (dist[first] != numeric_limits<int>::max() && dist[first] + weight < dist[secend]&&pred[secend]!=first) {
+            throw runtime_error("Graph contains a negative-weight cycle");
         }
     }
 
@@ -72,13 +66,12 @@ string ariel::Algorithms::shortestPath(const Graph& grp, size_t start, size_t en
 
     vector<size_t> path;
     for (size_t at = end; at != start; at = pred[at]) {
-        if (at == numeric_limits<size_t>::max()) {
+        if (at == numeric_limits<size_t>::max() || pred[at] == numeric_limits<size_t>::max()) {
             return "-1";  // No valid path exists
         }
         path.push_back(at);
     }
-    path.push_back(start); // Add the start node at the end
-
+    path.push_back(start);  // Add the start node at the end
     reverse(path.begin(), path.end());
 
     // Create a string representation of the path
@@ -89,64 +82,64 @@ string ariel::Algorithms::shortestPath(const Graph& grp, size_t start, size_t en
 
     return pathStr;
 }
-bool
-Algorithms::isCyclicUtil(size_t v, std::vector<bool> &visited, std::vector<bool> &recStack, std::vector<size_t> &parent,
-                         const Graph &grp, std::vector<size_t> &cycle) {
+
+std::vector<size_t> Algorithms::handleCycle(size_t startNode, size_t endNode, std::vector<size_t>& parent) {
+    std::vector<size_t> cycle;
+    for (size_t p = startNode; p != endNode; p = parent[p]) {
+        cycle.push_back(p);
+    }
+    cycle.push_back(endNode);  // Complete the cycle by adding the start node again
+    std::reverse(cycle.begin(), cycle.end());
+    return cycle;
+}
+
+bool Algorithms::isCyclicUtil(size_t v, std::vector<bool>& visited, std::vector<bool>& recStack, std::vector<size_t>& parent, const Graph& grp, std::vector<size_t>& cycle) {
     visited[v] = true;
     recStack[v] = true;
     bool isDirected = grp.isDirected();
-
     size_t numNodes = grp.getNumberOfNodes();
+
     for (size_t i = 0; i < numNodes; i++) {
-        if (grp.isEdge(v, i)) {  // Check if there is an edge from v to i
+        if (grp.isEdge(v, i)) {
             if (!visited[i]) {
                 parent[i] = v;
                 if (isCyclicUtil(i, visited, recStack, parent, grp, cycle)) {
                     return true;
                 }
             } else if ((isDirected && recStack[i]) || (!isDirected && recStack[i] && parent[v] != i)) {
-                // If a cycle is detected, trace back to print the cycle
-                cycle.push_back(i);
-                for (size_t p = v; p != i; p = parent[p]) {
-                    cycle.push_back(p);
-                }
-                cycle.push_back(i);  // Complete the cycle by adding the start node again
-                std::reverse(cycle.begin(), cycle.end());
-
-                // Print the cycle path
-                std::cout << "Cycle detected: ";
-                for (size_t j = 0; j < cycle.size(); j++) {
-                    std::cout << cycle[j];
-                    if (j < cycle.size() - 1) std::cout << " -> ";
-                }
-                std::cout << std::endl;
-
+                cycle = handleCycle(v, i, parent);
                 return true;
             }
         }
     }
-
     recStack[v] = false;
     return false;
 }
 
-bool Algorithms::isContainsCycle(const Graph &grp) {
+std::string Algorithms::isContainsCycle(const Graph& grp) {
     size_t numNodes = grp.getNumberOfNodes();
     std::vector<bool> visited(numNodes, false);
     std::vector<bool> recStack(numNodes, false);
     std::vector<size_t> parent(numNodes, SIZE_MAX);
-    std::vector<size_t> cycle;  // To store the path of the cycle
+    std::vector<size_t> cycle;
 
     for (size_t i = 0; i < numNodes; i++) {
         if (!visited[i]) {
             if (isCyclicUtil(i, visited, recStack, parent, grp, cycle)) {
-                return true;
+                std::string cycleStr;
+                for (size_t j = 0; j < cycle.size(); ++j) {
+                    cycleStr += std::to_string(cycle[j]);
+                    if (j != cycle.size() - 1) {
+                        cycleStr += "->";
+                    }
+                }
+                cycleStr+= "->" + std::to_string(cycle[0]);  // Complete the cycle by adding the start node again
+                return cycleStr;
             }
         }
     }
-    return false;
+    return "-1";  // Return "-1" if no cycle is found
 }
-
 std::string Algorithms::isBipartite(const Graph &grp) {
     size_t numNodes = grp.getNumberOfNodes();
     std::vector<int> colorArr(numNodes, -1);
