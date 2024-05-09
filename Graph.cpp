@@ -8,7 +8,7 @@ void Graph::loadGraph(const std::vector<std::vector<int>>& matrix) {
         throw std::invalid_argument("The graph cannot be empty");
     }
     // Check if the matrix is square
-    int size = matrix.size();
+    size_t size = matrix.size();
     for (const auto& row : matrix) {
         if (row.size() != size) {
             throw std::invalid_argument("Invalid graph: The graph is not a square matrix.");
@@ -19,12 +19,12 @@ void Graph::loadGraph(const std::vector<std::vector<int>>& matrix) {
     this->adjacencyMatrix = matrix;
 }
 void Graph::printGraph() const {
-    int numVertices = getNumberOfNodes();
+    size_t numVertices = getNumberOfNodes();
     int numEdges = 0;
     for (const auto &row: adjacencyMatrix) {
         for (const auto &element: row) {
-            if (element != 0)
-                numEdges++;
+            if (element != 0){
+                numEdges++;}
         }
     }
     // If the graph is undirected, each edge is counted twice
@@ -60,17 +60,6 @@ size_t Graph::getNumberOfNodes() const {
 std::vector<std::pair<size_t , std::pair<size_t, int>>> Graph::getEdges() const {
     std::vector<std::pair<size_t , std::pair<size_t , int>>> edges;
     for (size_t i = 0; i < adjacencyMatrix.size(); ++i) {
-        for (size_t j = i; j < adjacencyMatrix[i].size(); ++j) {
-            if (adjacencyMatrix[i][j] != 0) {
-                edges.push_back({i, {j, adjacencyMatrix[i][j]}});
-            }
-        }
-    }
-    return edges;
-}
-std::vector<std::pair<size_t, std::pair<size_t , int>>> Graph::getEdgesUndirected() const {
-    std::vector<std::pair<size_t, std::pair<size_t, int>>> edges;
-    for (size_t i = 0; i < adjacencyMatrix.size(); ++i) {
         for (size_t j = 0; j < adjacencyMatrix[i].size(); ++j) {
             if (adjacencyMatrix[i][j] != 0) {
                 edges.push_back({i, {j, adjacencyMatrix[i][j]}});
@@ -79,6 +68,7 @@ std::vector<std::pair<size_t, std::pair<size_t , int>>> Graph::getEdgesUndirecte
     }
     return edges;
 }
+
 
 std::vector<size_t> Graph::getNeighbors(size_t node) const {
     std::vector<size_t> neighbors;
@@ -93,11 +83,11 @@ std::vector<size_t> Graph::getNeighbors(size_t node) const {
     return neighbors;
 }
 
-int Graph::getEdgeWeight(int u, int v) const {
-    if (u < 0 || static_cast<size_t>(u) >= adjacencyMatrix.size() || v < 0 || static_cast<size_t>(v) >= adjacencyMatrix.size()) {
+int Graph::getEdgeWeight(size_t ver1, size_t ver2) const {
+    if ( static_cast<size_t>(ver1) >= adjacencyMatrix.size()  || static_cast<size_t>(ver2) >= adjacencyMatrix.size()) {
         throw std::out_of_range("Node index out of range");
     }
-    return adjacencyMatrix[static_cast<size_t>(u)][static_cast<size_t>(v)];
+    return adjacencyMatrix[static_cast<size_t>(ver1)][static_cast<size_t>(ver2)];
 }
 
 
