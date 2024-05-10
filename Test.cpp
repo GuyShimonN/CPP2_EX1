@@ -1,3 +1,6 @@
+//guy shimon:
+//ID-209306513
+//mail:guyguy845@gmail.com
 #include "doctest.h"
 #include "Algorithms.hpp"
 #include "Graph.hpp"
@@ -63,8 +66,8 @@ TEST_CASE("Test shortestPath with negative edge but no negative cycle")
             {0, -1, 0, 0, 0},
             {-1, 0, 3, 0, 0},
             {0, 3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 6},
+            {0, 0, 0, 6, 0}};
     grp.loadGraph(graph);
     CHECK(ariel::Algorithms::shortestPath(grp, 0, 4) == "0->1->2->3->4");
 }
@@ -75,8 +78,8 @@ TEST_CASE("Test shortestPath with negative edge but no negative cycle and direct
             {0, -1, 0, 0, 0},
             {0, 0, 3, 0, 0},
             {0, 3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 6},
+            {0, 0, 0, 6, 0}};
     grp.loadGraph(graph);
     CHECK(ariel::Algorithms::shortestPath(grp, 0, 4) == "0->1->2->3->4");
 }
@@ -87,8 +90,8 @@ TEST_CASE("Test shortestPath with negative cycle")
             {0, 1, -1, 0, 0},
             {1, 0, -3, 0, 0},
             {-1, -3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 6},
+            {0, 0, 0, 6, 0}};
     grp.loadGraph(graph);
     CHECK_THROWS(ariel::Algorithms::shortestPath(grp, 0, 4));
 }
@@ -99,8 +102,8 @@ TEST_CASE("Test shortestPath with negative cycle and directed graph")
             {0, 1, -1, 0, 0},
             {0, 0, -3, 0, 0},
             {-1, -3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 4},
+            {0, 0, 0, 4, 0}};
     grp.loadGraph(graph);
     CHECK_THROWS(ariel::Algorithms::shortestPath(grp, 0, 4));
 }
@@ -211,8 +214,8 @@ TEST_CASE("Test isBipartite")
         {0, 1, 0, 0, 0},
         {1, 0, 3, 0, 0},
         {0, 3, 0, 4, 0},
-        {0, 0, 4, 0, 5},
-        {0, 0, 0, 5, 0}};
+        {0, 0, 4, 0, 3},
+        {0, 0, 0, 3, 0}};
     grp.loadGraph(graph3);
     CHECK(ariel::Algorithms::isBipartite(grp) == "The graph is bipartite: A={0, 2, 4}, B={1, 3}");
 }
@@ -224,7 +227,7 @@ TEST_CASE("Test invalid graph")
         {1, 0, 3, 0},
         {2, 3, 0, 4},
         {0, 0, 4, 0},
-        {0, 0, 0, 5}};
+        {0, 0, 0, 10}};
     CHECK_THROWS(grp.loadGraph(graph));
 }
 TEST_CASE("Test loadGraph with valid graph")
@@ -234,8 +237,8 @@ TEST_CASE("Test loadGraph with valid graph")
             {0, 1, 0, 0, 0},
             {1, 0, 3, 0, 0},
             {0, 3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 1},
+            {0, 0, 0, 1, 0}};
     grp.loadGraph(graph);
     CHECK(grp.getNumberOfNodes() == 5);
 }
@@ -266,16 +269,16 @@ TEST_CASE("Test DFS")
             {0, 1, 0, 0, 0},
             {1, 0, 3, 0, 0},
             {0, 3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 8},
+            {0, 0, 0, 8, 0}};
     grp.loadGraph(graph);
 
     std::vector<bool> visited(grp.getNumberOfNodes(), false);
     ariel::Algorithms::DFS(grp, 0, visited);
 
     // All vertices should be visited
-    for (bool v : visited) {
-        CHECK(v == true);
+    for (bool ver : visited) {
+        CHECK(ver == true);
     }
 }
 TEST_CASE("Test DFS with disconnected graph")
@@ -332,8 +335,8 @@ TEST_CASE("Test negativeCycle with no negative cycle")
             {0, 1, 0, 0, 0},
             {1, 0, 3, 0, 0},
             {0, 3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 6},
+            {0, 0, 0, 6, 0}};
     grp.loadGraph(graph);
 
     CHECK(ariel::Algorithms::negativeCycle(grp) == "0");
@@ -343,11 +346,11 @@ TEST_CASE("Test negativeCycle with negative cycle")
 {
     ariel::Graph grp;
     vector<vector<int>> graph = {
-            {0, 1, 0, 0, 0},
-            {1, 0, -3, 0, 0},
-            {0, -3, 0, 4, 0},
-            {-6, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, -1, 0, 0, 0},
+            {-1, 0, -3, 0, 0},
+            {0, 0, 0, 4, 0},
+            {-6, 0, 4, 0, 6},
+            {0, 0, 0, 6, 0}};
     grp.loadGraph(graph);
 
     CHECK(ariel::Algorithms::negativeCycle(grp) != "0");
@@ -360,8 +363,8 @@ TEST_CASE("Test isCyclicUtil with no cycle")
             {0, 1, 0, 0, 0},
             {1, 0, 3, 0, 0},
             {0, 3, 0, 4, 0},
-            {0, 0, 4, 0, 5},
-            {0, 0, 0, 5, 0}};
+            {0, 0, 4, 0, 6},
+            {0, 0, 0, 6, 0}};
     grp.loadGraph(graph);
 
     std::vector<bool> visited(grp.getNumberOfNodes(), false);
