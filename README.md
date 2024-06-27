@@ -1,7 +1,5 @@
 guy shimon:
 
-ID-209306513
-
 mail:guyguy845@gmail.com
 
 for run the progrem you need to use g++ compiler and run the following command:
